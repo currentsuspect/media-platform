@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { CatalogSeriesDetail } from "@media/types";
+import type { CatalogSeriesDetail } from "../../lib/types";
 
 export function SeriesDetail({ item }: { item: CatalogSeriesDetail }) {
   return (

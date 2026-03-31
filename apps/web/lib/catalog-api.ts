@@ -1,10 +1,10 @@
 import type {
   CatalogEpisodePlaybackDetail,
   CatalogMovieListItem,
-  PlaybackIntent,
   CatalogSeriesDetail,
-  CatalogSeriesListItem
-} from "@media/types";
+  CatalogSeriesListItem,
+  PlaybackIntent
+} from "./types";
 
 const apiBaseUrl =
   process.env.API_BASE_URL?.replace(/\/$/, "") ?? "http://localhost:4000";

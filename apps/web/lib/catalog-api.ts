@@ -23,20 +23,41 @@ async function fetchFromApi<T>(path: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+export class ApiUnavailableError extends Error {
+  constructor(path: string) {
+    super(`API unavailable for path: ${path}`);
+    this.name = "ApiUnavailableError";
+  }
+}
+
 export async function getCatalogSeries() {
-  return fetchFromApi<{ items: CatalogSeriesListItem[] }>("/catalog/series");
+  try {
+    return await fetchFromApi<{ items: CatalogSeriesListItem[] }>("/catalog/series");
+  } catch {
+    return { items: [] as CatalogSeriesListItem[] };
+  }
 }
 
 export async function getCatalogMovies() {
-  return fetchFromApi<{ items: CatalogMovieListItem[] }>("/catalog/movies");
+  try {
+    return await fetchFromApi<{ items: CatalogMovieListItem[] }>("/catalog/movies");
+  } catch {
+    return { items: [] as CatalogMovieListItem[] };
+  }
 }
 
 export async function getCatalogSeriesDetail(id: string) {
-  const response = await fetch(`${apiBaseUrl}/catalog/series/${id}`, {
-    next: {
-      revalidate: 10
-    }
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(`${apiBaseUrl}/catalog/series/${id}`, {
+      next: {
+        revalidate: 10
+      }
+    });
+  } catch {
+    return null;
+  }
 
   if (response.status === 404) {
     return null;
@@ -50,11 +71,17 @@ export async function getCatalogSeriesDetail(id: string) {
 }
 
 export async function getCatalogEpisodeDetail(id: string) {
-  const response = await fetch(`${apiBaseUrl}/catalog/episodes/${id}`, {
-    next: {
-      revalidate: 10
-    }
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(`${apiBaseUrl}/catalog/episodes/${id}`, {
+      next: {
+        revalidate: 10
+      }
+    });
+  } catch {
+    return null;
+  }
 
   if (response.status === 404) {
     return null;
@@ -68,10 +95,16 @@ export async function getCatalogEpisodeDetail(id: string) {
 }
 
 export async function createEpisodePlaybackIntent(id: string) {
-  const response = await fetch(`${apiBaseUrl}/playback/episodes/${id}/intent`, {
-    method: "POST",
-    cache: "no-store"
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(`${apiBaseUrl}/playback/episodes/${id}/intent`, {
+      method: "POST",
+      cache: "no-store"
+    });
+  } catch {
+    throw new ApiUnavailableError(`/playback/episodes/${id}/intent`);
+  }
 
   if (!response.ok) {
     throw new Error(
